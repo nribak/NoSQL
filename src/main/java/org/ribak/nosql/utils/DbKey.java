@@ -13,7 +13,6 @@ import java.util.List;
  */
 
 public class DbKey implements Comparable<DbKey> {
-//    public static final String GLOBAL_PREFIX = "DB";
     private static final String COLON = ":";
 
     private List<String> groups;
@@ -105,8 +104,6 @@ public class DbKey implements Comparable<DbKey> {
 
         public Builder() {
             groups = new ArrayList<>();
-//            dbKey = new DbKey();
-//            dbKey.groups = new LinkedList<>();
         }
 
         public Builder addGroup(String group) {

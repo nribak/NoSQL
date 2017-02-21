@@ -25,7 +25,7 @@ public class KryoDatabase implements IDatabaseTools {
     private KDB db;
     private String moduleName;
 
-    {
+    static {
         executorService = new PriorityPoolExecutor();
     }
 

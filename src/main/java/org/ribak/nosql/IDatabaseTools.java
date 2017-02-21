@@ -13,9 +13,4 @@ public interface IDatabaseTools {
     String getModule();
 
     Object getDirectDb();
-
-//    void markDead();
-//
-//    boolean isDead();
-
 }

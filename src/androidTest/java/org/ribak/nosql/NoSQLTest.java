@@ -2,6 +2,7 @@ package org.ribak.nosql;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -12,6 +13,7 @@ import org.ribak.nosql.db.KDB;
 import org.ribak.nosql.db.KryoDatabase;
 import org.ribak.nosql.utils.DbKey;
 
+import java.util.Date;
 import java.util.Map;
 
 
@@ -56,7 +58,9 @@ public class NoSQLTest {
         Assert.assertEquals(n + n, c1);
         Assert.assertEquals(n, c2);
 
+        long time = new Date().getTime();
         Map<String, ?> data = database.getAll().sync();
+        Log.d("TIME", String.valueOf(new Date().getTime() - time));
         for (String key : data.keySet()) {
             Person expectedPerson = createPerson(key);
             Person person = (Person) data.get(key);

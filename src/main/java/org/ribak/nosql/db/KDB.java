@@ -37,7 +37,7 @@ public class KDB {
     private Kryo kryo;
     private boolean dead;
 
-    public KDB(String moduleName) {
+    KDB(String moduleName) {
         if(ROOT_DIRECTORY == null)
             throw new InitializationException("init() was never called");
         dead = false;
@@ -149,28 +149,35 @@ public class KDB {
     }
 
     public boolean has(String key) {
+        if(dead)
+            throw new DBDestroyedException();
         File file = getFile(key);
         return file.exists();
     }
 
     public boolean delete(String key) {
+        if(dead)
+            throw new DBDestroyedException();
         File file = getFile(key);
         return file.exists() && file.delete();
     }
 
 
     public String[] getKeys() {
+        if(dead)
+            throw new DBDestroyedException();
         List<File> files = getFiles(folder);
         String[] keys = new String[files.size()];
         for (int i = 0; i < files.size(); i++) {
             File file = files.get(i);
             keys[i] = getKey(file);
-//            keys[i] = file.getPath().substring(folder.getPath().length() + 1, file.getPath().length() - SUFFIX.length());
         }
         return keys;
     }
 
     public String[] getKeys(String prefix) {
+        if(dead)
+            throw new DBDestroyedException();
         String[] parts = prefix.split(SEPARATOR);
         File dir = folder;
         if(parts.length > 0)
@@ -181,7 +188,6 @@ public class KDB {
         for (int i = 0; i < files.size(); i++) {
             File file = files.get(i);
             keys[i] = getKey(file);
-//            keys[i] = file.getPath().substring(folder.getPath().length() + 1, file.getPath().length() - SUFFIX.length());
         }
         return keys;
     }

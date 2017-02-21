@@ -61,7 +61,8 @@ abstract class AbstractTransaction <PARAM, RESULT>
             return databaseTools.getExecutor().submit(new PriorityCallableTransaction(QueuePriority.medium)).get();
         } catch (InterruptedException | ExecutionException e)
         {
-            Log.w(mTag, e.getMessage());
+
+            log(e);
             return null;
         }
     }
