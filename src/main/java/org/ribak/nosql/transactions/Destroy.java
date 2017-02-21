@@ -1,7 +1,5 @@
 package org.ribak.nosql.transactions;
 
-import com.snappydb.SnappydbException;
-
 import org.ribak.nosql.IDatabaseTools;
 import org.ribak.nosql.utils.DbKey;
 
@@ -16,13 +14,6 @@ public class Destroy extends AbstractTransaction<Void, Boolean> {
 
     @Override
     protected Boolean performTransaction(DbKey k) {
-        try {
-            getDB().destroy();
-            setDatabaseDead();
-            return true;
-        } catch (SnappydbException e) {
-            log(e);
-            return false;
-        }
+        return getDB().destroy();
     }
 }

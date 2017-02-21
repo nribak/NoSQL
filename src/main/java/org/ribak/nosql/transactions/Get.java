@@ -1,10 +1,9 @@
 package org.ribak.nosql.transactions;
 
-import com.snappydb.SnappydbException;
-
 import org.ribak.nosql.IDatabaseTools;
 import org.ribak.nosql.utils.DbKey;
-import org.ribak.nosql.utils.SnappyObject;
+
+import java.io.IOException;
 
 /**
  * Created by nribak on 16/11/2016.
@@ -23,17 +22,12 @@ public class Get <RESULT> extends AbstractTransaction<Void, RESULT>
     @Override
     protected RESULT performTransaction(DbKey dbKey)
     {
-        try
-        {
-            SnappyObject<RESULT> snappyObject = getDB().getObject(dbKey.getQualifiedKey(), SnappyObject.class);
-            if(snappyObject != null)
-                return snappyObject.getObject();
-
-        } catch (SnappydbException e)
-        {
+        try {
+            return (RESULT) getDB().get(dbKey.getQualifiedKey());
+        } catch (IOException e) {
             log(e);
+            return defaultValue;
         }
-        return defaultValue;
     }
 
 }

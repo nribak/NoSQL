@@ -13,7 +13,7 @@ import java.util.List;
  */
 
 public class DbKey implements Comparable<DbKey> {
-    public static final String GLOBAL_PREFIX = "DB";
+//    public static final String GLOBAL_PREFIX = "DB";
     private static final String COLON = ":";
 
     private List<String> groups;
@@ -44,10 +44,8 @@ public class DbKey implements Comparable<DbKey> {
         return key;
     }
 
-    public String getQualifiedGroups(boolean fullGroup) {
+    public String getQualifiedGroups() {
         StringBuilder builder = new StringBuilder();
-        if(fullGroup)
-            builder.append(GLOBAL_PREFIX);
         for (String group : groups) {
             if(builder.length() > 0)
                 builder.append(COLON);
@@ -57,8 +55,8 @@ public class DbKey implements Comparable<DbKey> {
     }
 
     public String getQualifiedKey() {
-        String group = getQualifiedGroups(false);
-        return GLOBAL_PREFIX + COLON + group + COLON + key;
+        String group = getQualifiedGroups();
+        return group + COLON + key;
     }
 
     @Override

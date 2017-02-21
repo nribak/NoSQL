@@ -14,8 +14,8 @@ public interface IDatabaseTools {
 
     Object getDirectDb();
 
-    void markDead();
-
-    boolean isDead();
+//    void markDead();
+//
+//    boolean isDead();
 
 }

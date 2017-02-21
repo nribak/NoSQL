@@ -1,7 +1,5 @@
 package org.ribak.nosql.transactions;
 
-import com.snappydb.SnappydbException;
-
 import org.ribak.nosql.IDatabaseTools;
 import org.ribak.nosql.utils.DbKey;
 
@@ -17,15 +15,8 @@ public class Contains extends AbstractTransaction<Void, Boolean>
     }
 
     @Override
-    protected Boolean performTransaction(DbKey snappyKey)
+    protected Boolean performTransaction(DbKey dbKey)
     {
-        try
-        {
-            return getDB().exists(snappyKey.getQualifiedKey());
-        } catch (SnappydbException e)
-        {
-            log(e);
-        }
-        return false;
+        return getDB().has(dbKey.getQualifiedKey());
     }
 }

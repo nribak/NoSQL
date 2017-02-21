@@ -1,7 +1,5 @@
 package org.ribak.nosql.transactions;
 
-import com.snappydb.SnappydbException;
-
 import org.ribak.nosql.IDatabaseTools;
 import org.ribak.nosql.utils.DbKey;
 
@@ -21,14 +19,7 @@ public class CountKeys extends AbstractTransaction<Void, Integer>
     @Override
     protected Integer performTransaction(DbKey dbKey)
     {
-        try
-        {
-            String prefix = (countAll) ? DbKey.GLOBAL_PREFIX : dbKey.getQualifiedGroups(true);
-            return getDB().countKeys(prefix);
-        } catch (SnappydbException e)
-        {
-            log(e);
-        }
-        return 0;
+        String[] keys = (countAll) ?  getDB().getKeys() : getDB().getKeys(dbKey.getQualifiedGroups());
+        return keys.length;
     }
 }

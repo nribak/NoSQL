@@ -1,15 +1,7 @@
 package org.ribak.nosql.db;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
-import com.snappydb.DB;
-import com.snappydb.DBFactory;
-import com.snappydb.SnappydbException;
-
-import org.ribak.nosql.IDatabaseIO;
 import org.ribak.nosql.IDatabaseTools;
 import org.ribak.nosql.transactions.Contains;
 import org.ribak.nosql.transactions.CountKeys;
@@ -21,101 +13,35 @@ import org.ribak.nosql.transactions.GetKeys;
 import org.ribak.nosql.transactions.Insert;
 import org.ribak.nosql.utils.DbKey;
 import org.ribak.nosql.utils.PriorityPoolExecutor;
-import org.ribak.nosql.utils.exceptions.InitializationException;
 
 import java.util.concurrent.ExecutorService;
 
 /**
- * Created by nribak on 16/11/2016.
+ * Created by nribak on 21/02/2017.
  */
 
-public class SnappyDatabase implements IDatabaseIO, IDatabaseTools
-{
-    private static String sRootDirectory;
-    private static ExecutorService sExecutorService;
+public class KryoDatabase implements IDatabaseTools {
+    private static ExecutorService executorService;
+    private KDB db;
+    private String moduleName;
 
-    private static Kryo sKryo;
-    private DB db;
-    private String mModuleName;
-    private boolean dead;
-    public static void init(Context context)
     {
-        sRootDirectory = context.getFilesDir().getAbsolutePath();
-        sExecutorService = new PriorityPoolExecutor();
-        sKryo = new Kryo();
-        sKryo.setDefaultSerializer(CompatibleFieldSerializer.class);
+        executorService = new PriorityPoolExecutor();
     }
 
-    /**
-     * creates a new database
-     * @param moduleName the module name for the database.
-     * @throws InitializationException if {@link SnappyDatabase#init(Context)} was not called first
-     */
-    SnappyDatabase(String moduleName)
-    {
-        if(sRootDirectory == null)
-            throw new InitializationException("init() was never called");
-        this.mModuleName = moduleName;
-        if(db != null)
-                throw new InitializationException("DB is already open");
-        dead = false;
-    }
-
-    /**
-     * Opens a new connection to the database
-     */
-    @Override
-    public void open()
-    {
-        try
-        {
-            db = DBFactory.open(sRootDirectory, mModuleName, sKryo);
-        } catch (SnappydbException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Check if this DB is open
-     * @return true if the DB is open
-     */
-    @Override
-    public boolean isOpen()
-    {
-        try
-        {
-            return db != null && db.isOpen();
-        } catch (SnappydbException e)
-        {
-            return false;
-        }
-    }
-
-    /**
-     * Close the connection to the database only if it is open now
-     */
-    @Override
-    public void close()
-    {
-        try
-        {
-            if(db != null && db.isOpen())
-                db.close();
-        } catch (SnappydbException e)
-        {
-            e.printStackTrace();
-        }
+    public KryoDatabase(String moduleName) {
+        this.moduleName = moduleName;
+        this.db = new KDB(moduleName);
     }
 
     @Override
     public ExecutorService getExecutor() {
-        return sExecutorService;
+        return executorService;
     }
 
     @Override
     public String getModule() {
-        return mModuleName;
+        return moduleName;
     }
 
     @Override
@@ -123,15 +49,7 @@ public class SnappyDatabase implements IDatabaseIO, IDatabaseTools
         return db;
     }
 
-    @Override
-    public void markDead() {
-        dead = true;
-    }
-
-    @Override
-    public boolean isDead() {
-        return dead;
-    }
+    // TRANSACTIONS //
 
     /**
      * Inserts new entry to the database
@@ -146,7 +64,7 @@ public class SnappyDatabase implements IDatabaseIO, IDatabaseTools
 
     /**
      * Inserts new entry to the database
-     * @param group the group or {@code null} to use {@link DbKey#GLOBAL_PREFIX}
+     * @param group the group or {@code null} without group
      * @param key the unique key in the group
      * @param value any object to save (must have a non-args constructor)
      * @return the transaction to use
@@ -157,7 +75,7 @@ public class SnappyDatabase implements IDatabaseIO, IDatabaseTools
     }
 
     /**
-     * Inserts new entry to the database in the {@link DbKey#GLOBAL_PREFIX}
+     * Inserts new entry to the database with no group
      * @param key the unique key in the group
      * @param value any object to save (must have a non-args constructor)
      * @return the transaction to use
@@ -180,7 +98,7 @@ public class SnappyDatabase implements IDatabaseIO, IDatabaseTools
 
     /**
      * Retrieves an entry from the database
-     * @param group the group or {@code null} to use {@link DbKey#GLOBAL_PREFIX}
+     * @param group the group or {@code null}
      * @param key the unique key in the group
      * @param defaultValue value to return if no key is found in that group (null-ok)
      * @return the transaction to use
@@ -191,7 +109,7 @@ public class SnappyDatabase implements IDatabaseIO, IDatabaseTools
     }
 
     /**
-     * Retrieves an entry from the default group in the database: {@link DbKey#GLOBAL_PREFIX}
+     * Retrieves an entry from the default group in the database
      * @param key the unique key in the group
      * @param defaultValue value to return if no key is found in that group (null-ok)
      * @return the transaction to use
@@ -202,7 +120,7 @@ public class SnappyDatabase implements IDatabaseIO, IDatabaseTools
     }
     /**
      * Retrieves an entry from the database
-     * @param group the group or {@code null} to use {@link DbKey#GLOBAL_PREFIX}
+     * @param group the group or {@code null}
      * @param key the unique key in the group
      * @return the transaction to use
      */
@@ -211,7 +129,7 @@ public class SnappyDatabase implements IDatabaseIO, IDatabaseTools
         return this.get(new DbKey(group, key), null);
     }
     /**
-     * Retrieves an entry from the default group in the database: {@link DbKey#GLOBAL_PREFIX}
+     * Retrieves an entry from the default group in the database
      * @param key the unique key in the group
      * @return the transaction to use
      */
@@ -241,7 +159,7 @@ public class SnappyDatabase implements IDatabaseIO, IDatabaseTools
     }
 
     /**
-     * Deletes an entry from the database in {@link DbKey#GLOBAL_PREFIX}
+     * Deletes an entry from the database
      * @param key the unique key in the group
      * @return the transaction to use
      */
@@ -329,6 +247,10 @@ public class SnappyDatabase implements IDatabaseIO, IDatabaseTools
         return this.getAll(new DbKey(group));
     }
 
+    public GetAll getAll() {
+        return this.getAll((DbKey) null);
+    }
+
     /**
      * Check if a key exists in a specific group
      * @param group the group to query
@@ -347,5 +269,4 @@ public class SnappyDatabase implements IDatabaseIO, IDatabaseTools
     public Destroy destroy() {
         return new Destroy(this);
     }
-
 }
