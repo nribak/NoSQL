@@ -9,8 +9,10 @@ import org.ribak.nosql.transactions.Delete;
 import org.ribak.nosql.transactions.Destroy;
 import org.ribak.nosql.transactions.Get;
 import org.ribak.nosql.transactions.GetAll;
+import org.ribak.nosql.transactions.GetBatch;
 import org.ribak.nosql.transactions.GetKeys;
 import org.ribak.nosql.transactions.Insert;
+import org.ribak.nosql.transactions.InsertBatch;
 import org.ribak.nosql.utils.DbKey;
 import org.ribak.nosql.utils.PriorityPoolExecutor;
 
@@ -269,4 +271,13 @@ public class KryoDatabase implements IDatabaseTools {
     public Destroy destroy() {
         return new Destroy(this);
     }
+
+    public <T> InsertBatch<T> insertArray(DbKey key, T[] array) {
+        return new InsertBatch<>(this, key, array);
+    }
+
+    public <T> GetBatch<T> getArray(DbKey key) {
+        return new GetBatch<>(this, key);
+    }
+
 }

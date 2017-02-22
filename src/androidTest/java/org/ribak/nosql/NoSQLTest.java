@@ -14,6 +14,7 @@ import org.ribak.nosql.db.KryoDatabase;
 import org.ribak.nosql.utils.DbKey;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 
@@ -73,5 +74,50 @@ public class NoSQLTest {
 
     private Person createPerson(String key) {
         return new Person(key, "name is: " + key);
+    }
+
+
+    @Test
+    public void timeSingle() throws Exception {
+        final int N = 10000;
+        long time = new Date().getTime();
+        for (int i = 0; i < N; i++) {
+            Person person = createPerson("key" + i);
+            database.insert(String.valueOf(i), person).sync();
+        }
+        Log.d("TIME1", String.valueOf(new Date().getTime() - time));
+        time = new Date().getTime();
+        for (int i = 0; i < N; i++) {
+            Person expected = createPerson("key" + i);
+            Person person = database.<Person> get(String.valueOf(i)).sync();
+
+            Assert.assertNotNull(person);
+            Assert.assertEquals(expected, person);
+        }
+        Log.d("TIME2", String.valueOf(new Date().getTime() - time));
+    }
+
+    @Test
+    public void timeMultiple() throws Exception {
+        final int N = 10000;
+        Person[] persons = new Person[N];
+        for (int i = 0; i < N; i++)
+            persons[i] = createPerson("key" + i);
+
+        final DbKey dbKey = new DbKey.Builder().setKey("keyBatch").build();
+        long time = new Date().getTime();
+        database.insertArray(dbKey, persons).sync();
+        Log.d("TIME1", String.valueOf(new Date().getTime() - time));
+
+        time = new Date().getTime();
+        List<Person> personsList = database.<Person> getArray(dbKey).sync();
+        Log.d("TIME2", String.valueOf(new Date().getTime() - time));
+
+        for (int i = 0; i < N; i++) {
+            Person expected = persons[i];
+            Person person = personsList.get(i);
+            Assert.assertNotNull(person);
+            Assert.assertEquals(expected, person);
+        }
     }
 }
