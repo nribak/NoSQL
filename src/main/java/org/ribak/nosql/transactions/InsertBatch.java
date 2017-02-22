@@ -1,7 +1,6 @@
 package org.ribak.nosql.transactions;
 
 import org.ribak.nosql.IDatabaseTools;
-import org.ribak.nosql.utils.DbKey;
 
 import java.io.IOException;
 
@@ -11,13 +10,12 @@ import java.io.IOException;
 
 public class InsertBatch <PARAM> extends AbstractTransaction<PARAM[], Boolean> {
 
-    public InsertBatch(IDatabaseTools databaseTools, DbKey key, PARAM[] params) {
+    public InsertBatch(IDatabaseTools databaseTools, String key, PARAM[] params) {
         super(databaseTools, key, params);
     }
 
     @Override
-    protected Boolean performTransaction(DbKey dbKey) {
-        String key = dbKey.getQualifiedKey();
+    protected Boolean performTransaction(String key) {
         Object[] objects = getParam();
         try {
             getDB().putBatch(key, objects);

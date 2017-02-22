@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ribak.nosql.db.KDB;
 import org.ribak.nosql.db.KryoDatabase;
-import org.ribak.nosql.utils.DbKey;
 
 import java.util.Date;
 import java.util.List;
@@ -28,46 +27,34 @@ public class NoSQLTest {
     @Before
     public void setUp() throws Exception {
         KDB.init(InstrumentationRegistry.getTargetContext());
-        database = new KryoDatabase("test-module");
+        database = new KryoDatabase("test-module-3");
     }
 
     @After
     public void tearDown() throws Exception {
         database.destroy().sync();
     }
-
     @Test
     public void checkDb() throws Exception {
-        final String group1 = "g1";
-        final String group2 = "g2";
-        final String[] keys = {"key0", "key1", "key2"};
-        final int n = keys.length;
+        final String[] keys = {"key0", "key1", "key2", "specialKey1", "specialKey2"};
+        final int n = 3;
         for (String key : keys) {
-            DbKey k1 = new DbKey.Builder().addGroup(group1).setKey(key).build();
-            DbKey k2 = new DbKey.Builder().addGroup(group1).addGroup(group2).setKey(key).build();
-
-            Person p1 = createPerson(k1.getQualifiedKey());
-            Person p2 = createPerson(k2.getQualifiedKey());
-
-            database.insert(k1, p1).sync();
-            database.insert(k2, p2).sync();
+            Person person = createPerson(key);
+            database.insert(key, person).sync();
         }
 
-        int c1 = database.count(new DbKey.Builder().addGroup(group1).build()).sync();
-        int c2 = database.count(new DbKey.Builder().addGroup(group1).addGroup(group2).build()).sync();
+        int count = database.count("key").sync();
+        Assert.assertEquals(n, count);
 
-        Assert.assertEquals(n + n, c1);
-        Assert.assertEquals(n, c2);
-
-        long time = new Date().getTime();
         Map<String, ?> data = database.getAll().sync();
-        Log.d("TIME", String.valueOf(new Date().getTime() - time));
+        Assert.assertNotNull(data);
+        Assert.assertEquals(keys.length, data.size());
         for (String key : data.keySet()) {
-            Person expectedPerson = createPerson(key);
+            Person expected = createPerson(key);
             Person person = (Person) data.get(key);
 
             Assert.assertNotNull(person);
-            Assert.assertEquals(expectedPerson, person);
+            Assert.assertEquals(expected, person);
         }
     }
 
@@ -104,13 +91,14 @@ public class NoSQLTest {
         for (int i = 0; i < N; i++)
             persons[i] = createPerson("key" + i);
 
-        final DbKey dbKey = new DbKey.Builder().setKey("keyBatch").build();
+        final String key = "key-multiple";
+//        final DbKey dbKey = new DbKey.Builder().setKey("keyBatch").build();
         long time = new Date().getTime();
-        database.insertArray(dbKey, persons).sync();
+        database.insertArray(key, persons).sync();
         Log.d("TIME1", String.valueOf(new Date().getTime() - time));
 
         time = new Date().getTime();
-        List<Person> personsList = database.<Person> getArray(dbKey).sync();
+        List<Person> personsList = database.<Person> getArray(key).sync();
         Log.d("TIME2", String.valueOf(new Date().getTime() - time));
 
         for (int i = 0; i < N; i++) {

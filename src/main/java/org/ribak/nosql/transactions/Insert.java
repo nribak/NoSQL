@@ -1,7 +1,6 @@
 package org.ribak.nosql.transactions;
 
 import org.ribak.nosql.IDatabaseTools;
-import org.ribak.nosql.utils.DbKey;
 
 import java.io.IOException;
 
@@ -11,16 +10,16 @@ import java.io.IOException;
 
 public class Insert<PARAM> extends AbstractTransaction<PARAM, Boolean>
 {
-    public Insert(IDatabaseTools tools, DbKey key, PARAM param)
+    public Insert(IDatabaseTools tools, String key, PARAM param)
     {
         super(tools, key, param);
     }
 
     @Override
-    protected Boolean performTransaction(DbKey dbKey)
+    protected Boolean performTransaction(String key)
     {
         try {
-            getDB().put(dbKey.getQualifiedKey(), getParam());
+            getDB().put(key, getParam());
             return true;
         } catch (IOException e) {
             log(e);

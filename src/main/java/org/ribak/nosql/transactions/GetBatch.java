@@ -1,7 +1,6 @@
 package org.ribak.nosql.transactions;
 
 import org.ribak.nosql.IDatabaseTools;
-import org.ribak.nosql.utils.DbKey;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,14 +11,13 @@ import java.util.List;
  */
 
 public class GetBatch <RESULT> extends AbstractTransaction<Void, List<RESULT>> {
-    public GetBatch(IDatabaseTools databaseTools, DbKey key) {
+    public GetBatch(IDatabaseTools databaseTools, String key) {
         super(databaseTools, key, null);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected List<RESULT> performTransaction(DbKey dbKey) {
-        String key = dbKey.getQualifiedKey();
+    protected List<RESULT> performTransaction(String key) {
         List<RESULT> items = new ArrayList<>();
         try {
             List<Object> objects = getDB().getBatch(key);

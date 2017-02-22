@@ -5,7 +5,6 @@ import android.util.Log;
 
 import org.ribak.nosql.IDatabaseTools;
 import org.ribak.nosql.db.KDB;
-import org.ribak.nosql.utils.DbKey;
 import org.ribak.nosql.utils.PriorityCallable;
 import org.ribak.nosql.utils.QueuePriority;
 import org.ribak.nosql.utils.SnappyCallback;
@@ -20,11 +19,11 @@ abstract class AbstractTransaction <PARAM, RESULT>
 {
     private final String mTag;
 
-    private DbKey mKey;
+    private String mKey;
     private PARAM mParam;
     private IDatabaseTools databaseTools;
 
-    AbstractTransaction(IDatabaseTools databaseTools, DbKey key, PARAM param)
+    AbstractTransaction(IDatabaseTools databaseTools, String key, PARAM param)
     {
         this.databaseTools = databaseTools;
         mKey = key;
@@ -45,7 +44,7 @@ abstract class AbstractTransaction <PARAM, RESULT>
     /**
      * The main method in which the DB transaction is made
      */
-    protected abstract RESULT performTransaction(DbKey dbKey);
+    protected abstract RESULT performTransaction(String key);
 
     protected void log(Exception e) {
         Log.w(mTag, e.getMessage());

@@ -1,7 +1,6 @@
 package org.ribak.nosql.transactions;
 
 import org.ribak.nosql.IDatabaseTools;
-import org.ribak.nosql.utils.DbKey;
 
 /**
  * Created by nribak on 16/11/2016.
@@ -9,14 +8,14 @@ import org.ribak.nosql.utils.DbKey;
 
 public class Delete extends AbstractTransaction<Void, Boolean>
 {
-    public Delete(IDatabaseTools tools, DbKey key)
+    public Delete(IDatabaseTools tools, String key)
     {
         super(tools, key, null);
     }
 
     @Override
-    protected Boolean performTransaction(DbKey dbKey)
+    protected Boolean performTransaction(String key)
     {
-        return getDB().delete(dbKey.getQualifiedKey());
+        return getDB().delete(key);
     }
 }

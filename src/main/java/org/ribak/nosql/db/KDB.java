@@ -1,6 +1,7 @@
 package org.ribak.nosql.db;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -50,49 +51,22 @@ public class KDB {
 
     }
 
-    private static final String SEPARATOR = ":";
     private static final String SUFFIX = ".kryo";
     private File getFile(String key) {
-        File file = folder;
-        String[] parts = key.split(SEPARATOR);
-        for (int i = 0; i < parts.length; i++) {
-            if(i == parts.length - 1)
-                file = new File(file.getPath(), parts[i] + SUFFIX);
-            else {
-                file = new File(file.getPath(), parts[i]);
-                if(!file.exists() && !file.mkdir())
-                    throw new IllegalDirectoryException(file);
-            }
-        }
-        return file;
+        return new File(folder, key + SUFFIX);
     }
 
     private String getKey(File file) {
-        StringBuilder builder = new StringBuilder();
-        boolean b = false;
-        for (String part : file.getPath().split("/")) {
-            if(b) {
-                if(builder.length() > 0)
-                    builder.append(SEPARATOR);
-                builder.append(part);
-            }
-            if(part.equals(folder.getName()))
-                b = true;
-        }
-        int length = builder.length();
-        return builder.delete(length - SUFFIX.length(), length).toString();
+        String name = file.getName();
+        return name.substring(0, name.length() - SUFFIX.length());
     }
 
-    private List<File> getFiles(File directory) {
+    private List<File> getFiles(String prefix) {
+        File[] allFiles = folder.listFiles();
         List<File> files = new ArrayList<>();
-
-        File[] f = directory.listFiles();
-        for (File file : f) {
-            if(file.isDirectory())
-                files.addAll(getFiles(file));
-            else
+        for (File file : allFiles)
+            if(prefix == null || file.getName().startsWith(prefix))
                 files.add(file);
-        }
         return files;
     }
 
@@ -137,12 +111,9 @@ public class KDB {
             @Override
             protected List<Object> performTransaction(Input input) {
                 List<Object> objects = new ArrayList<>();
-                Object object;
-                do {
-                    object = kryo.readClassAndObject(input);
-                    if(object != null)
-                        objects.add(object);
-                } while (object != null);
+                while (!input.eof()) {
+                    objects.add(kryo.readClassAndObject(input));
+                }
                 return objects;
             }
         }.run();
@@ -163,27 +134,10 @@ public class KDB {
     }
 
 
-    public String[] getKeys() {
+    public String[] getKeys(@Nullable String prefix) {
         if(dead)
             throw new DBDestroyedException();
-        List<File> files = getFiles(folder);
-        String[] keys = new String[files.size()];
-        for (int i = 0; i < files.size(); i++) {
-            File file = files.get(i);
-            keys[i] = getKey(file);
-        }
-        return keys;
-    }
-
-    public String[] getKeys(String prefix) {
-        if(dead)
-            throw new DBDestroyedException();
-        String[] parts = prefix.split(SEPARATOR);
-        File dir = folder;
-        if(parts.length > 0)
-            for (String part : parts)
-                dir = new File(dir, part);
-        List<File> files = getFiles(dir);
+        List<File> files = getFiles(prefix);
         String[] keys = new String[files.size()];
         for (int i = 0; i < files.size(); i++) {
             File file = files.get(i);
@@ -194,7 +148,7 @@ public class KDB {
 
     public boolean destroy() {
         boolean success = true;
-        List<File> files = getFiles(folder);
+        List<File> files = getFiles(null);
         for (File file : files)
             if(!file.delete())
                 success = false;

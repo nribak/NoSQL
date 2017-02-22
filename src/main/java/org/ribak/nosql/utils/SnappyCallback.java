@@ -8,5 +8,5 @@ import android.support.annotation.Nullable;
 
 public interface SnappyCallback <T>
 {
-    void onDbCallback(@Nullable DbKey dbKey, T response);
+    void onDbCallback(@Nullable String key, T response);
 }

@@ -1,7 +1,6 @@
 package org.ribak.nosql.transactions;
 
 import org.ribak.nosql.IDatabaseTools;
-import org.ribak.nosql.utils.DbKey;
 
 /**
  * Created by nribak on 16/11/2016.
@@ -9,14 +8,14 @@ import org.ribak.nosql.utils.DbKey;
 
 public class Contains extends AbstractTransaction<Void, Boolean>
 {
-    public Contains(IDatabaseTools tools, DbKey key)
+    public Contains(IDatabaseTools tools, String key)
     {
         super(tools, key, null);
     }
 
     @Override
-    protected Boolean performTransaction(DbKey dbKey)
+    protected Boolean performTransaction(String key)
     {
-        return getDB().has(dbKey.getQualifiedKey());
+        return getDB().has(key);
     }
 }

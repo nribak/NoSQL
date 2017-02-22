@@ -1,7 +1,6 @@
 package org.ribak.nosql.transactions;
 
 import org.ribak.nosql.IDatabaseTools;
-import org.ribak.nosql.utils.DbKey;
 
 import java.io.IOException;
 
@@ -12,7 +11,7 @@ import java.io.IOException;
 public class Get <RESULT> extends AbstractTransaction<Void, RESULT>
 {
     private RESULT defaultValue;
-    public Get(IDatabaseTools tools, DbKey key, RESULT defaultValue)
+    public Get(IDatabaseTools tools, String key, RESULT defaultValue)
     {
         super(tools, key, null);
         this.defaultValue = defaultValue;
@@ -20,10 +19,10 @@ public class Get <RESULT> extends AbstractTransaction<Void, RESULT>
 
     @SuppressWarnings("unchecked")
     @Override
-    protected RESULT performTransaction(DbKey dbKey)
+    protected RESULT performTransaction(String key)
     {
         try {
-            return (RESULT) getDB().get(dbKey.getQualifiedKey());
+            return (RESULT) getDB().get(key);
         } catch (IOException e) {
             log(e);
             return defaultValue;

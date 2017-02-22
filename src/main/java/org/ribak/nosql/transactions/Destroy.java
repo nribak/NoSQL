@@ -1,7 +1,6 @@
 package org.ribak.nosql.transactions;
 
 import org.ribak.nosql.IDatabaseTools;
-import org.ribak.nosql.utils.DbKey;
 
 /**
  * Created by nribak on 12/02/2017.
@@ -13,7 +12,7 @@ public class Destroy extends AbstractTransaction<Void, Boolean> {
     }
 
     @Override
-    protected Boolean performTransaction(DbKey k) {
+    protected Boolean performTransaction(String k) {
         return getDB().destroy();
     }
 }

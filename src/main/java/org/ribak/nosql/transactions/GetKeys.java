@@ -1,24 +1,18 @@
 package org.ribak.nosql.transactions;
 
 import org.ribak.nosql.IDatabaseTools;
-import org.ribak.nosql.utils.DbKey;
 
 /**
  * Created by nribak on 16/11/2016.
  */
 
-public class GetKeys extends AbstractTransaction<Void, String[]>
-{
-    private boolean getAll;
-    public GetKeys(IDatabaseTools tools, DbKey key)
-    {
-        super(tools, key, null);
-        this.getAll = (key == null);
+public class GetKeys extends AbstractMultiGetTransaction<String[]> {
+    public GetKeys(IDatabaseTools databaseTools, String prefix) {
+        super(databaseTools, prefix);
     }
 
     @Override
-    protected String[] performTransaction(DbKey dbKey)
-    {
-        return (getAll) ? getDB().getKeys() : getDB().getKeys(dbKey.getQualifiedGroups());
+    protected String[] performTransactionWithPrefix(String prefix) {
+        return getDB().getKeys(prefix);
     }
 }
