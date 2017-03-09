@@ -3,15 +3,11 @@ package org.ribak.nosql.transactions;
 import android.os.Handler;
 import android.util.Log;
 
-import com.snappydb.DB;
-
 import org.ribak.nosql.IDatabaseTools;
-import org.ribak.nosql.db.ModulesManager;
-import org.ribak.nosql.utils.DbKey;
+import org.ribak.nosql.db.KDB;
 import org.ribak.nosql.utils.PriorityCallable;
 import org.ribak.nosql.utils.QueuePriority;
 import org.ribak.nosql.utils.SnappyCallback;
-import org.ribak.nosql.utils.exceptions.DBDestroyedException;
 
 import java.util.concurrent.ExecutionException;
 
@@ -23,16 +19,16 @@ abstract class AbstractTransaction <PARAM, RESULT>
 {
     private final String mTag;
 
-    private DbKey mKey;
+    private String mKey;
     private PARAM mParam;
     private IDatabaseTools databaseTools;
 
-    AbstractTransaction(IDatabaseTools databaseTools, DbKey key, PARAM param)
+    AbstractTransaction(IDatabaseTools databaseTools, String key, PARAM param)
     {
         this.databaseTools = databaseTools;
         mKey = key;
         mParam = param;
-        mTag = getClass().getSimpleName() + ".SNAPPY-DATABASE";
+        mTag = getClass().getSimpleName() + ".KRYO-DATABASE";
     }
 
     PARAM getParam()
@@ -40,18 +36,15 @@ abstract class AbstractTransaction <PARAM, RESULT>
         return mParam;
     }
 
-    protected DB getDB()
+    protected KDB getDB()
     {
-        return (DB) databaseTools.getDirectDb();
+        return (KDB) databaseTools.getDirectDb();
     }
 
-    protected void setDatabaseDead() {
-        databaseTools.markDead();
-    }
     /**
      * The main method in which the DB transaction is made
      */
-    protected abstract RESULT performTransaction(DbKey dbKey);
+    protected abstract RESULT performTransaction(String key);
 
     protected void log(Exception e) {
         Log.w(mTag, e.getMessage());
@@ -67,7 +60,8 @@ abstract class AbstractTransaction <PARAM, RESULT>
             return databaseTools.getExecutor().submit(new PriorityCallableTransaction(QueuePriority.medium)).get();
         } catch (InterruptedException | ExecutionException e)
         {
-            Log.w(mTag, e.getMessage());
+
+            log(e);
             return null;
         }
     }
@@ -113,14 +107,6 @@ abstract class AbstractTransaction <PARAM, RESULT>
         private PriorityCallableTransaction(QueuePriority queuePriority)
         {
             super(databaseTools.getModule(), queuePriority);
-            if(databaseTools.isDead())
-                throw new DBDestroyedException();
-        }
-
-        @Override
-        protected void onPreCall()
-        {
-            ModulesManager.getInstance().setModule(databaseTools.getModule());
         }
 
         @Override
@@ -128,6 +114,5 @@ abstract class AbstractTransaction <PARAM, RESULT>
         {
             return performTransaction(mKey);
         }
-
     }
 }

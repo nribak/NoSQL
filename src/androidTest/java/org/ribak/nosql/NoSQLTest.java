@@ -2,17 +2,21 @@ package org.ribak.nosql;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ribak.nosql.db.ModulesManager;
-import org.ribak.nosql.db.SnappyDatabase;
-import org.ribak.nosql.utils.DbKey;
+import org.ribak.nosql.db.KDB;
+import org.ribak.nosql.db.KryoDatabase;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 
 /**
  * Created by nribak on 12/02/2017.
@@ -20,73 +24,114 @@ import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class NoSQLTest {
-    private SnappyDatabase database;
+    private KryoDatabase database;
     @Before
     public void setUp() throws Exception {
-        SnappyDatabase.init(InstrumentationRegistry.getTargetContext());
-        database = (SnappyDatabase) ModulesManager.getInstance().getDB("tests-2");
+        KDB.init(InstrumentationRegistry.getTargetContext());
+        database = new KryoDatabase("test-module-3");
     }
 
     @After
     public void tearDown() throws Exception {
         database.destroy().sync();
     }
-
     @Test
     public void checkDb() throws Exception {
-        final String group1 = "g1";
-        final String group2 = "g2";
-        final String[] keys = {"key0", "key1", "key2"};
-
-        DbKey.Builder builder1 = new DbKey.Builder().addGroup(group1);
-        for (String k : keys) {
-            DbKey key = builder1.setKey(k).build();
-            database.insert(key, new Person(k, "name is: " + k)).sync();
+        final String[] keys = {"key0", "key1", "key2", "specialKey1", "specialKey2"};
+        final int n = 3;
+        for (String key : keys) {
+            Person person = createPerson(key);
+            database.insert(key, person).sync();
         }
 
-        DbKey.Builder builder2 = new DbKey.Builder().addGroup(group1).addGroup(group2);
-        for (String k : keys) {
-            DbKey key = builder2.setKey(k).build();
-            database.insert(key, new Person(k, "name is: " + k)).sync();
-        }
-
-        int n = keys.length;
-        int count = database.count(builder1.build()).sync();
-        Assert.assertEquals(n + n, count);
-
-        count = database.countAll().sync();
-        Assert.assertEquals(n + n, count);
-
-        count = database.count(builder2.build()).sync();
+        int count = database.count("key").sync();
         Assert.assertEquals(n, count);
 
+        Map<String, ?> data = database.getAll().sync();
+        Assert.assertNotNull(data);
+        Assert.assertEquals(keys.length, data.size());
+        for (String key : data.keySet()) {
+            Person expected = createPerson(key);
+            Person person = (Person) data.get(key);
 
-        for (String k : keys) {
-            DbKey dbKey1 = builder1.setKey(k).build();
-            DbKey dbKey2 = builder2.setKey(k).build();
-
-            Person p1 = database.<Person> get(dbKey1, null).sync();
-            Person p2 = database.<Person> get(dbKey2, null).sync();
-
-            Assert.assertNotNull(p1);
-            Assert.assertNotNull(p2);
-
-            Person p = createPerson(k);
-            Assert.assertEquals(p, p1);
-            Assert.assertEquals(p, p2);
-        }
-
-        Map<DbKey, ?> data = database.getAll((String) null).sync();
-        for (DbKey dbKey : data.keySet()) {
-            Person p = createPerson(dbKey.getKey());
-            Person person = (Person) data.get(dbKey);
             Assert.assertNotNull(person);
-            Assert.assertEquals(p, person);
+            Assert.assertEquals(expected, person);
         }
     }
 
 
     private Person createPerson(String key) {
         return new Person(key, "name is: " + key);
+    }
+
+
+    @Test
+    public void timeSingle() throws Exception {
+        final int N = 10000;
+        long time = new Date().getTime();
+        for (int i = 0; i < N; i++) {
+            Person person = createPerson("key" + i);
+            database.insert(String.valueOf(i), person).sync();
+        }
+        Log.d("TIME1", String.valueOf(new Date().getTime() - time));
+        time = new Date().getTime();
+        for (int i = 0; i < N; i++) {
+            Person expected = createPerson("key" + i);
+            Person person = database.<Person> get(String.valueOf(i)).sync();
+
+            Assert.assertNotNull(person);
+            Assert.assertEquals(expected, person);
+        }
+        Log.d("TIME2", String.valueOf(new Date().getTime() - time));
+    }
+
+    @Test
+    public void timeMultiple() throws Exception {
+        final int N = 10000;
+        Person[] persons = new Person[N];
+        for (int i = 0; i < N; i++)
+            persons[i] = createPerson("key" + i);
+
+        final String key = "key-multiple";
+//        final DbKey dbKey = new DbKey.Builder().setKey("keyBatch").build();
+        long time = new Date().getTime();
+        database.insertArray(key, persons).sync();
+        Log.d("TIME1", String.valueOf(new Date().getTime() - time));
+
+        time = new Date().getTime();
+        List<Person> personsList = database.<Person> getArray(key).sync();
+        Log.d("TIME2", String.valueOf(new Date().getTime() - time));
+
+        for (int i = 0; i < N; i++) {
+            Person expected = persons[i];
+            Person person = personsList.get(i);
+            Assert.assertNotNull(person);
+            Assert.assertEquals(expected, person);
+        }
+    }
+
+    @Test
+    public void multipleDBs() throws Exception {
+        KryoDatabase secondDatabase = new KryoDatabase("test-2-module-4");
+        final String[] keys = {"key0", "key1", "key2", "specialKey1", "specialKey2"};
+        Map<String, Object> expected = new HashMap<>();
+
+        for (String key : keys) {
+            Person person = createPerson(key);
+            database.insert(key, person).sync();
+            secondDatabase.insert(key, person).sync();
+            expected.put(key, person);
+        }
+
+        Map<String, ?> map1 = database.getAll().sync();
+        Map<String, ?> map2 = secondDatabase.getAll().sync();
+
+        Assert.assertNotNull(map1);
+        Assert.assertNotNull(map2);
+
+        Assert.assertEquals(expected, map1);
+        Assert.assertEquals(expected, map2);
+
+        secondDatabase.destroy().sync();
     }
 }

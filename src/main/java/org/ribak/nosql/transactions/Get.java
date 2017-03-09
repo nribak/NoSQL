@@ -1,10 +1,8 @@
 package org.ribak.nosql.transactions;
 
-import com.snappydb.SnappydbException;
-
 import org.ribak.nosql.IDatabaseTools;
-import org.ribak.nosql.utils.DbKey;
-import org.ribak.nosql.utils.SnappyObject;
+
+import java.io.IOException;
 
 /**
  * Created by nribak on 16/11/2016.
@@ -13,7 +11,7 @@ import org.ribak.nosql.utils.SnappyObject;
 public class Get <RESULT> extends AbstractTransaction<Void, RESULT>
 {
     private RESULT defaultValue;
-    public Get(IDatabaseTools tools, DbKey key, RESULT defaultValue)
+    public Get(IDatabaseTools tools, String key, RESULT defaultValue)
     {
         super(tools, key, null);
         this.defaultValue = defaultValue;
@@ -21,19 +19,14 @@ public class Get <RESULT> extends AbstractTransaction<Void, RESULT>
 
     @SuppressWarnings("unchecked")
     @Override
-    protected RESULT performTransaction(DbKey dbKey)
+    protected RESULT performTransaction(String key)
     {
-        try
-        {
-            SnappyObject<RESULT> snappyObject = getDB().getObject(dbKey.getQualifiedKey(), SnappyObject.class);
-            if(snappyObject != null)
-                return snappyObject.getObject();
-
-        } catch (SnappydbException e)
-        {
+        try {
+            return (RESULT) getDB().get(key);
+        } catch (IOException e) {
             log(e);
+            return defaultValue;
         }
-        return defaultValue;
     }
 
 }

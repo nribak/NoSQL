@@ -1,10 +1,8 @@
 package org.ribak.nosql.transactions;
 
-import com.snappydb.SnappydbException;
-
 import org.ribak.nosql.IDatabaseTools;
-import org.ribak.nosql.utils.DbKey;
-import org.ribak.nosql.utils.SnappyObject;
+
+import java.io.IOException;
 
 /**
  * Created by nribak on 16/11/2016.
@@ -12,24 +10,21 @@ import org.ribak.nosql.utils.SnappyObject;
 
 public class Insert<PARAM> extends AbstractTransaction<PARAM, Boolean>
 {
-    public Insert(IDatabaseTools tools, DbKey key, PARAM param)
+    public Insert(IDatabaseTools tools, String key, PARAM param)
     {
         super(tools, key, param);
     }
 
     @Override
-    protected Boolean performTransaction(DbKey dbKey)
+    protected Boolean performTransaction(String key)
     {
-        SnappyObject<PARAM> object = new SnappyObject<>(getParam());
-        try
-        {
-            getDB().put(dbKey.getQualifiedKey(), object);
+        try {
+            getDB().put(key, getParam());
             return true;
-        } catch (SnappydbException e)
-        {
+        } catch (IOException e) {
             log(e);
+            return false;
         }
-        return false;
     }
 
 }
