@@ -13,6 +13,7 @@ import org.ribak.nosql.db.KDB;
 import org.ribak.nosql.db.KryoDatabase;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -107,5 +108,30 @@ public class NoSQLTest {
             Assert.assertNotNull(person);
             Assert.assertEquals(expected, person);
         }
+    }
+
+    @Test
+    public void multipleDBs() throws Exception {
+        KryoDatabase secondDatabase = new KryoDatabase("test-2-module-4");
+        final String[] keys = {"key0", "key1", "key2", "specialKey1", "specialKey2"};
+        Map<String, Object> expected = new HashMap<>();
+
+        for (String key : keys) {
+            Person person = createPerson(key);
+            database.insert(key, person).sync();
+            secondDatabase.insert(key, person).sync();
+            expected.put(key, person);
+        }
+
+        Map<String, ?> map1 = database.getAll().sync();
+        Map<String, ?> map2 = secondDatabase.getAll().sync();
+
+        Assert.assertNotNull(map1);
+        Assert.assertNotNull(map2);
+
+        Assert.assertEquals(expected, map1);
+        Assert.assertEquals(expected, map2);
+
+        secondDatabase.destroy().sync();
     }
 }
