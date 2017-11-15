@@ -134,4 +134,23 @@ public class NoSQLTest {
 
         secondDatabase.destroy().sync();
     }
+
+    @Test
+    public void serializers() throws Exception {
+        KryoDatabase database2 = new KryoDatabase("test-module-4");
+        Person p = new Person("id1", "name1"); // should be separated
+        database2.addSerializer(p);
+
+        database.insert(p.getId(), p).sync();
+        database2.insert(p.getId(), p).sync();
+
+        Person p1 = database.<Person> get(p.getId()).sync();
+        Person p2 = database2.<Person> get(p.getId()).sync();
+
+        Assert.assertNotNull(p1);
+        Assert.assertNotNull(p2);
+
+        Assert.assertEquals(p.getName(), p1.getName());
+        Assert.assertNotEquals(p.getName(), p2.getName());
+    }
 }

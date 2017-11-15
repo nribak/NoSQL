@@ -11,6 +11,7 @@ import org.ribak.nosql.transactions.GetBatch;
 import org.ribak.nosql.transactions.GetKeys;
 import org.ribak.nosql.transactions.Insert;
 import org.ribak.nosql.transactions.InsertBatch;
+import org.ribak.nosql.utils.ObjectSerializer;
 import org.ribak.nosql.utils.PriorityPoolExecutor;
 
 import java.util.concurrent.ExecutorService;
@@ -49,7 +50,9 @@ public class KryoDatabase implements IDatabaseTools {
     }
 
     // TRANSACTIONS //
-
+    public <T> void addSerializer(ObjectSerializer<T> serializer) {
+        db.addSerializer(serializer);
+    }
     /**
      * Inserts new entry to the database
      * @param key the unique key in the group
@@ -60,7 +63,6 @@ public class KryoDatabase implements IDatabaseTools {
     {
         return new Insert<>(this, key, value);
     }
-
 
     /**
      * Retrieves an entry from the default group in the database
