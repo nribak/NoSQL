@@ -1,4 +1,4 @@
-package org.ribak.nosql;
+package org.ribak.nosql.db;
 
 import java.util.concurrent.ExecutorService;
 

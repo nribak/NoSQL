@@ -1,5 +1,7 @@
 package org.ribak.nosql;
 
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
@@ -139,7 +141,6 @@ public class NoSQLTest {
     public void serializers() throws Exception {
         KryoDatabase database2 = new KryoDatabase("test-module-4");
         Person p = new Person("id1", "name1"); // should be separated
-        database2.addSerializer(p);
 
         database.insert(p.getId(), p).sync();
         database2.insert(p.getId(), p).sync();
@@ -152,5 +153,27 @@ public class NoSQLTest {
 
         Assert.assertEquals(p.getName(), p1.getName());
         Assert.assertNotEquals(p.getName(), p2.getName());
+
+        database2.destroy().sync();
+    }
+
+    @Test
+    public void bitmaps() throws Exception {
+        final String key = "bitmap_key";
+        Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565);
+        bitmap.eraseColor(Color.RED);
+
+        database.insert(key, bitmap).sync();
+        Bitmap b = database.<Bitmap> get(key).sync();
+
+        Assert.assertNotNull(b);
+
+        boolean same = bitmap.sameAs(b);
+        Assert.assertTrue(same);
+
+        database.delete(key).sync();
+        b = database.<Bitmap> get(key).sync();
+        Assert.assertNull(b);
+
     }
 }

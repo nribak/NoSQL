@@ -1,6 +1,6 @@
 package org.ribak.nosql.transactions;
 
-import org.ribak.nosql.IDatabaseTools;
+import org.ribak.nosql.db.IDatabaseTools;
 
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class Get <RESULT> extends AbstractTransaction<Void, RESULT>
 {
-    private RESULT defaultValue;
+    RESULT defaultValue;
     public Get(IDatabaseTools tools, String key, RESULT defaultValue)
     {
         super(tools, key, null);

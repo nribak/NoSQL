@@ -1,6 +1,5 @@
 package org.ribak.nosql.db;
 
-import org.ribak.nosql.IDatabaseTools;
 import org.ribak.nosql.transactions.Contains;
 import org.ribak.nosql.transactions.CountKeys;
 import org.ribak.nosql.transactions.Delete;
@@ -11,7 +10,6 @@ import org.ribak.nosql.transactions.GetBatch;
 import org.ribak.nosql.transactions.GetKeys;
 import org.ribak.nosql.transactions.Insert;
 import org.ribak.nosql.transactions.InsertBatch;
-import org.ribak.nosql.utils.ObjectSerializer;
 import org.ribak.nosql.utils.PriorityPoolExecutor;
 
 import java.util.concurrent.ExecutorService;
@@ -50,9 +48,6 @@ public class KryoDatabase implements IDatabaseTools {
     }
 
     // TRANSACTIONS //
-    public <T> void addSerializer(ObjectSerializer<T> serializer) {
-        db.addSerializer(serializer);
-    }
     /**
      * Inserts new entry to the database
      * @param key the unique key in the group
@@ -83,7 +78,6 @@ public class KryoDatabase implements IDatabaseTools {
     {
         return this.get(key, null);
     }
-
 
     /**
      * Deletes an entry from the database

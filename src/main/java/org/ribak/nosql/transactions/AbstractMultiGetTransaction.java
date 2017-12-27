@@ -1,6 +1,6 @@
 package org.ribak.nosql.transactions;
 
-import org.ribak.nosql.IDatabaseTools;
+import org.ribak.nosql.db.IDatabaseTools;
 
 /**
  * Created by nribak on 22/02/2017.

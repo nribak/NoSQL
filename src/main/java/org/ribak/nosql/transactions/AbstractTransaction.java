@@ -3,7 +3,7 @@ package org.ribak.nosql.transactions;
 import android.os.Handler;
 import android.util.Log;
 
-import org.ribak.nosql.IDatabaseTools;
+import org.ribak.nosql.db.IDatabaseTools;
 import org.ribak.nosql.db.KDB;
 import org.ribak.nosql.utils.PriorityCallable;
 import org.ribak.nosql.utils.QueuePriority;

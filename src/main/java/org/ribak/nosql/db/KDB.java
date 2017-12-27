@@ -1,15 +1,15 @@
 package org.ribak.nosql.db;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
 
-import org.ribak.nosql.utils.ObjectSerializer;
+import org.ribak.nosql.utils.BitmapSerializer;
 import org.ribak.nosql.utils.exceptions.DBDestroyedException;
 import org.ribak.nosql.utils.exceptions.IllegalDirectoryException;
 import org.ribak.nosql.utils.exceptions.InitializationException;
@@ -46,6 +46,7 @@ public class KDB {
         dead = false;
         kryo = new Kryo();
         kryo.setDefaultSerializer(CompatibleFieldSerializer.class);
+        kryo.addDefaultSerializer(Bitmap.class, new BitmapSerializer());
         if(ROOT_DIRECTORY.exists() || ROOT_DIRECTORY.mkdir())
             folder = new File(ROOT_DIRECTORY, moduleName);
         if(folder == null || (!folder.exists() && !folder.mkdir()))
@@ -158,12 +159,6 @@ public class KDB {
         return success;
     }
 
-    <T> void addSerializer(final ObjectSerializer<T> serializer) {
-        if(dead)
-            throw new DBDestroyedException();
-        kryo.register(serializer.getSerializerClass(), new ObjectSerializerImpl<>(serializer));
-    }
-
     private abstract class StreamFactory <STREAM, T> {
         protected String key;
 
@@ -226,24 +221,6 @@ public class KDB {
                 stream.close();
             if(outputStream != null)
                 outputStream.close();
-        }
-    }
-
-    private class ObjectSerializerImpl <T> extends Serializer<T> {
-        private ObjectSerializer<T> objectSerializer;
-
-        private ObjectSerializerImpl(ObjectSerializer<T> objectSerializer) {
-            this.objectSerializer = objectSerializer;
-        }
-
-        @Override
-        public void write(Kryo kryo, Output output, T object) {
-            objectSerializer.write(object, output);
-        }
-
-        @Override
-        public T read(Kryo kryo, Input input, Class<T> type) {
-            return objectSerializer.read(type, input);
         }
     }
 }
