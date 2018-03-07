@@ -19,7 +19,7 @@ public class Insert<PARAM> extends AbstractTransaction<PARAM, Boolean>
     protected Boolean performTransaction(String key)
     {
         try {
-            getDB().put(key, getParam());
+            api().put(key, getParam());
             return true;
         } catch (IOException e) {
             log(e);

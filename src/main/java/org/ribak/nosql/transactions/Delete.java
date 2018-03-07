@@ -16,6 +16,6 @@ public class Delete extends AbstractTransaction<Void, Boolean>
     @Override
     protected Boolean performTransaction(String key)
     {
-        return getDB().delete(key);
+        return api().delete(key);
     }
 }

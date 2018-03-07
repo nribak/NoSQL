@@ -1,4 +1,4 @@
-package org.ribak.nosql.utils;
+package org.ribak.nosql.serializers;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

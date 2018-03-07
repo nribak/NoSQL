@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * Created by nribak on 12/02/2017.
  */
 
-public class Person implements Parcelable {
+public class Person implements Parcelable, IPerson {
     private String id, name;
 
     public Person() {
@@ -35,6 +35,7 @@ public class Person implements Parcelable {
         }
     };
 
+    @Override
     public String getId() {
         return id;
     }

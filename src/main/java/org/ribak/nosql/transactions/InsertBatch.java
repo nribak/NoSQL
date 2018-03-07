@@ -18,7 +18,7 @@ public class InsertBatch <PARAM> extends AbstractTransaction<PARAM[], Boolean> {
     protected Boolean performTransaction(String key) {
         Object[] objects = getParam();
         try {
-            getDB().putBatch(key, objects);
+            api().putBatch(key, objects);
             return true;
         } catch (IOException e) {
             log(e);

@@ -12,5 +12,5 @@ public interface IDatabaseTools {
 
     String getModule();
 
-    Object getDirectDb();
+    DatabaseAPI getDirectDb();
 }

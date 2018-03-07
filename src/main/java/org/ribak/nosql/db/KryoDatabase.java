@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutorService;
 
 public class KryoDatabase implements IDatabaseTools {
     private static ExecutorService executorService;
-    private KDB db;
+    private DatabaseAPI api;
     private String moduleName;
 
     static {
@@ -29,7 +29,7 @@ public class KryoDatabase implements IDatabaseTools {
 
     public KryoDatabase(String moduleName) {
         this.moduleName = moduleName;
-        this.db = new KDB(moduleName);
+        this.api = new KryoDatabaseAPI(moduleName);
     }
 
     @Override
@@ -43,8 +43,8 @@ public class KryoDatabase implements IDatabaseTools {
     }
 
     @Override
-    public Object getDirectDb() {
-        return db;
+    public DatabaseAPI getDirectDb() {
+        return api;
     }
 
     // TRANSACTIONS //

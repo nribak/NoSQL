@@ -1,23 +1,25 @@
 package org.ribak.nosql;
 
-import android.graphics.Bitmap;
-import android.graphics.Color;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ribak.nosql.db.KDB;
 import org.ribak.nosql.db.KryoDatabase;
+import org.ribak.nosql.db.KryoDatabaseAPI;
 
-import java.util.Date;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -29,7 +31,7 @@ public class NoSQLTest {
     private KryoDatabase database;
     @Before
     public void setUp() throws Exception {
-        KDB.init(InstrumentationRegistry.getTargetContext());
+        KryoDatabaseAPI.init(InstrumentationRegistry.getTargetContext());
         database = new KryoDatabase("test-module-3");
     }
 
@@ -37,123 +39,115 @@ public class NoSQLTest {
     public void tearDown() throws Exception {
         database.destroy().sync();
     }
-    @Test
-    public void checkDb() throws Exception {
-        final String[] keys = {"key0", "key1", "key2", "specialKey1", "specialKey2"};
-        final int n = 3;
-        for (String key : keys) {
-            Person person = createPerson(key);
-            database.insert(key, person).sync();
-        }
-
-        int count = database.count("key").sync();
-        Assert.assertEquals(n, count);
-
-        Map<String, ?> data = database.getAll().sync();
-        Assert.assertNotNull(data);
-        Assert.assertEquals(keys.length, data.size());
-        for (String key : data.keySet()) {
-            Person expected = createPerson(key);
-            Person person = (Person) data.get(key);
-
-            Assert.assertNotNull(person);
-            Assert.assertEquals(expected, person);
-        }
-    }
-
-
-    private Person createPerson(String key) {
-        return new Person(key, "name is: " + key);
-    }
-
 
     @Test
-    public void timeSingle() throws Exception {
-        final int N = 10000;
-        long time = new Date().getTime();
-        for (int i = 0; i < N; i++) {
-            Person person = createPerson("key" + i);
-            database.insert(String.valueOf(i), person).sync();
-        }
-        Log.d("TIME1", String.valueOf(new Date().getTime() - time));
-        time = new Date().getTime();
-        for (int i = 0; i < N; i++) {
-            Person expected = createPerson("key" + i);
-            Person person = database.<Person> get(String.valueOf(i)).sync();
+    public void db() throws Exception {
+        String key = "key1";
+        TestClass t1 = new TestClass(1, 2);
+        database.insert(key, t1).sync();
 
-            Assert.assertNotNull(person);
-            Assert.assertEquals(expected, person);
-        }
-        Log.d("TIME2", String.valueOf(new Date().getTime() - time));
+        TestClass t2 = database.<TestClass> get(key).sync();
+        Assert.assertNotNull(t2);
+        Assert.assertEquals(t1, t2);
     }
 
     @Test
-    public void timeMultiple() throws Exception {
-        final int N = 10000;
-        Person[] persons = new Person[N];
-        for (int i = 0; i < N; i++)
-            persons[i] = createPerson("key" + i);
+    public void db2() throws Exception {
+        Bundle bundle = new Bundle();
+        bundle.putInt("key1", 1);
+        bundle.putInt("key2", 2);
+        bundle.putString("key3", "value1");
+        ArrayList<TestClass> list = new ArrayList<>();
+        list.add(new TestClass(1, 2));
+        list.add(new TestClass(3, 4));
+        bundle.putParcelableArrayList("key4", list);
+        Map<String, Object> map = new HashMap<>();
+        for (String key : bundle.keySet())
+            map.put(key, bundle.get(key));
 
-        final String key = "key-multiple";
-//        final DbKey dbKey = new DbKey.Builder().setKey("keyBatch").build();
-        long time = new Date().getTime();
-        database.insertArray(key, persons).sync();
-        Log.d("TIME1", String.valueOf(new Date().getTime() - time));
+        String key = "map_key";
+        database.insert(key, map).sync();
 
-        time = new Date().getTime();
-        List<Person> personsList = database.<Person> getArray(key).sync();
-        Log.d("TIME2", String.valueOf(new Date().getTime() - time));
-
-        for (int i = 0; i < N; i++) {
-            Person expected = persons[i];
-            Person person = personsList.get(i);
-            Assert.assertNotNull(person);
-            Assert.assertEquals(expected, person);
-        }
-    }
-
-    @Test
-    public void multipleDBs() throws Exception {
-        KryoDatabase secondDatabase = new KryoDatabase("test-2-module-4");
-        final String[] keys = {"key0", "key1", "key2", "specialKey1", "specialKey2"};
-        Map<String, Object> expected = new HashMap<>();
-
-        for (String key : keys) {
-            Person person = createPerson(key);
-            database.insert(key, person).sync();
-            secondDatabase.insert(key, person).sync();
-            expected.put(key, person);
-        }
-
-        Map<String, ?> map1 = database.getAll().sync();
-        Map<String, ?> map2 = secondDatabase.getAll().sync();
-
-        Assert.assertNotNull(map1);
+        Map<String, Object> map2 = database. <Map<String, Object>> get(key).sync();
         Assert.assertNotNull(map2);
-
-        Assert.assertEquals(expected, map1);
-        Assert.assertEquals(expected, map2);
-
-        secondDatabase.destroy().sync();
+        Assert.assertEquals(map, map2);
     }
 
+
     @Test
-    public void bitmaps() throws Exception {
-        final String key = "bitmap_key";
-        Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.RGB_565);
-        bitmap.eraseColor(Color.RED);
+    public void db3() throws Exception {
+        Bundle bundle = new Bundle();
+        bundle.putInt("key1", 1);
+        bundle.putInt("key2", 2);
+        bundle.putString("key3", "value1");
+        ArrayList<TestClass> list = new ArrayList<>();
+        list.add(new TestClass(1, 2));
+        list.add(new TestClass(3, 4));
+        bundle.putParcelableArrayList("key4", list);
+        bundle.putIntArray("key5", new int[] {10, 20, 30});
+        String key = "bundle_key";
+        database.insert(key, bundle).sync();
 
-        database.insert(key, bitmap).sync();
-        Bitmap b = database.<Bitmap> get(key).sync();
+        Bundle bundle2 = database.<Bundle> get(key).sync();
 
-        Assert.assertNotNull(b);
+        Assert.assertNotNull(bundle2);
+        boolean eq = checkBundles(bundle, bundle2);
+        Assert.assertTrue(eq);
+    }
 
-        boolean same = bitmap.sameAs(b);
-        Assert.assertTrue(same);
+    private boolean checkBundles(Bundle bundle1, Bundle bundle2) {
+        Set<String> set1 = bundle1.keySet();
+        Set<String> set2 = bundle2.keySet();
+        if(set1.size() != set2.size())
+            return false;
+        for (String key : set1) {
+            Object val1 = bundle1.get(key);
+            Object val2 = bundle2.get(key);
+            if(!testEquality(val1, val2))
+                return false;
+        }
+        return true;
+    }
 
-        database.delete(key).sync();
-        b = database.<Bitmap> get(key).sync();
-        Assert.assertNull(b);
+    private static boolean testEquality(Object o1, Object o2) {
+       if(o1 == null || o2 == null)
+           return o1 == o2;
 
+       if(o1.getClass().isArray() && o2.getClass().isArray())
+           return Array.getLength(o1) == Array.getLength(o2);
+       return Objects.equals(o1, o2);
+    }
+
+    private static class TestClass implements Parcelable {
+        private int x, y;
+
+        private TestClass() { }
+
+        private TestClass(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        protected TestClass(Parcel parcel) {
+            this.x = parcel.readInt();
+            this.y = parcel.readInt();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            TestClass rhs = (TestClass) obj;
+            return x == rhs.x && y == rhs.y;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(x);
+            dest.writeInt(y);
+        }
     }
 }

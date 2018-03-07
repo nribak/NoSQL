@@ -3,8 +3,8 @@ package org.ribak.nosql.transactions;
 import android.os.Handler;
 import android.util.Log;
 
+import org.ribak.nosql.db.DatabaseAPI;
 import org.ribak.nosql.db.IDatabaseTools;
-import org.ribak.nosql.db.KDB;
 import org.ribak.nosql.utils.PriorityCallable;
 import org.ribak.nosql.utils.QueuePriority;
 import org.ribak.nosql.utils.SnappyCallback;
@@ -36,9 +36,9 @@ abstract class AbstractTransaction <PARAM, RESULT>
         return mParam;
     }
 
-    protected KDB getDB()
+    protected DatabaseAPI api()
     {
-        return (KDB) databaseTools.getDirectDb();
+        return databaseTools.getDirectDb();
     }
 
     /**

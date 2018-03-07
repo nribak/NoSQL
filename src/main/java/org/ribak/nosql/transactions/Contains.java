@@ -16,6 +16,6 @@ public class Contains extends AbstractTransaction<Void, Boolean>
     @Override
     protected Boolean performTransaction(String key)
     {
-        return getDB().has(key);
+        return api().contains(key);
     }
 }

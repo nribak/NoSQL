@@ -2,6 +2,8 @@ package org.ribak.nosql.transactions;
 
 import org.ribak.nosql.db.IDatabaseTools;
 
+import java.util.Set;
+
 /**
  * Created by nribak on 16/11/2016.
  */
@@ -13,6 +15,7 @@ public class GetKeys extends AbstractMultiGetTransaction<String[]> {
 
     @Override
     protected String[] performTransactionWithPrefix(String prefix) {
-        return getDB().getKeys(prefix);
+        Set<String> keys = api().getKeys(prefix);
+        return keys.toArray(new String[keys.size()]);
     }
 }

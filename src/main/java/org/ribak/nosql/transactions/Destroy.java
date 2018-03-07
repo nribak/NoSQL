@@ -13,6 +13,6 @@ public class Destroy extends AbstractTransaction<Void, Boolean> {
 
     @Override
     protected Boolean performTransaction(String k) {
-        return getDB().destroy();
+        return api().destroy();
     }
 }

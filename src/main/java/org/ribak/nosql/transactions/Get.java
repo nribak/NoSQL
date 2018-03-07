@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class Get <RESULT> extends AbstractTransaction<Void, RESULT>
 {
-    RESULT defaultValue;
+    private RESULT defaultValue;
     public Get(IDatabaseTools tools, String key, RESULT defaultValue)
     {
         super(tools, key, null);
@@ -22,7 +22,7 @@ public class Get <RESULT> extends AbstractTransaction<Void, RESULT>
     protected RESULT performTransaction(String key)
     {
         try {
-            return (RESULT) getDB().get(key);
+            return (RESULT) api().get(key);
         } catch (IOException e) {
             log(e);
             return defaultValue;

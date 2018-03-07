@@ -18,9 +18,11 @@ public class GetBatch <RESULT> extends AbstractTransaction<Void, List<RESULT>> {
     @SuppressWarnings("unchecked")
     @Override
     protected List<RESULT> performTransaction(String key) {
+        if(!api().supportsBatching())
+            return new ArrayList<>();
         List<RESULT> items = new ArrayList<>();
         try {
-            List<Object> objects = getDB().getBatch(key);
+            List<Object> objects = api().getBatch(key);
             for (Object object : objects) {
                 if(object != null)
                     items.add((RESULT) object);
