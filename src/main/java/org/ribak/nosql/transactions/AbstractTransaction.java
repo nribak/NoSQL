@@ -4,10 +4,10 @@ import android.os.Handler;
 import android.util.Log;
 
 import org.ribak.nosql.db.DatabaseAPI;
-import org.ribak.nosql.db.IDatabaseTools;
+import org.ribak.nosql.db.INoSQLDatabaseTools;
 import org.ribak.nosql.utils.PriorityCallable;
 import org.ribak.nosql.utils.QueuePriority;
-import org.ribak.nosql.utils.SnappyCallback;
+import org.ribak.nosql.utils.DBCallback;
 
 import java.util.concurrent.ExecutionException;
 
@@ -21,9 +21,9 @@ abstract class AbstractTransaction <PARAM, RESULT>
 
     private String mKey;
     private PARAM mParam;
-    private IDatabaseTools databaseTools;
+    private INoSQLDatabaseTools databaseTools;
 
-    AbstractTransaction(IDatabaseTools databaseTools, String key, PARAM param)
+    AbstractTransaction(INoSQLDatabaseTools databaseTools, String key, PARAM param)
     {
         this.databaseTools = databaseTools;
         mKey = key;
@@ -38,7 +38,7 @@ abstract class AbstractTransaction <PARAM, RESULT>
 
     protected DatabaseAPI api()
     {
-        return databaseTools.getDirectDb();
+        return databaseTools.getApi();
     }
 
     /**
@@ -70,7 +70,7 @@ abstract class AbstractTransaction <PARAM, RESULT>
      * Causes this transaction to run asynchronously. This method will not be blocked. the result will be returned through the callback interface
      * @param callback the callback with the result which will be called sometime in the future
      */
-    public void async(final SnappyCallback<RESULT> callback)
+    public void async(final DBCallback<RESULT> callback)
     {
         final Handler handler = (callback == null) ? null : new Handler();
         databaseTools.getExecutor().submit(new PriorityCallableTransaction(QueuePriority.low)
@@ -79,17 +79,8 @@ abstract class AbstractTransaction <PARAM, RESULT>
             protected void onPostCall(final RESULT result)
             {
                 if(handler != null)
-                    handler.post(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            callback.onDbCallback(mKey, result);
-                        }
-                    });
+                    handler.post(() -> callback.onDbCallback(mKey, result));
             }
-
-
         });
     }
 

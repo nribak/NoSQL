@@ -18,9 +18,15 @@ import java.util.Map;
 
 public class BundleSerializer extends Serializer<Bundle> {
 
+    private Map<String, Object> map;
+
+    public BundleSerializer() {
+        map = new HashMap<>();
+    }
+
     @Override
     public void write(Kryo kryo, Output output, Bundle object) {
-        Map<String, Object> map = new HashMap<>();
+        map.clear();
         for (String key : object.keySet())
             map.put(key, object.get(key));
         kryo.writeClassAndObject(output, map);
@@ -36,6 +42,7 @@ public class BundleSerializer extends Serializer<Bundle> {
             else if(entry.getValue() instanceof Serializable)
                 bundle.putSerializable(entry.getKey(), (Serializable) entry.getValue());
         }
+        new Bundle(bundle);
         return bundle;
     }
 }

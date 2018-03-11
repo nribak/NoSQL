@@ -1,6 +1,6 @@
 package org.ribak.nosql.transactions;
 
-import org.ribak.nosql.db.IDatabaseTools;
+import org.ribak.nosql.db.INoSQLDatabaseTools;
 
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class InsertBatch <PARAM> extends AbstractTransaction<PARAM[], Boolean> {
 
-    public InsertBatch(IDatabaseTools databaseTools, String key, PARAM[] params) {
+    public InsertBatch(INoSQLDatabaseTools databaseTools, String key, PARAM[] params) {
         super(databaseTools, key, params);
     }
 

@@ -1,6 +1,6 @@
 package org.ribak.nosql.transactions;
 
-import org.ribak.nosql.db.IDatabaseTools;
+import org.ribak.nosql.db.INoSQLDatabaseTools;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 public class GetBatch <RESULT> extends AbstractTransaction<Void, List<RESULT>> {
-    public GetBatch(IDatabaseTools databaseTools, String key) {
+    public GetBatch(INoSQLDatabaseTools databaseTools, String key) {
         super(databaseTools, key, null);
     }
 

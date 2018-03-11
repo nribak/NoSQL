@@ -1,6 +1,6 @@
 package org.ribak.nosql.transactions;
 
-import org.ribak.nosql.db.IDatabaseTools;
+import org.ribak.nosql.db.INoSQLDatabaseTools;
 
 import java.util.Set;
 
@@ -9,7 +9,7 @@ import java.util.Set;
  */
 
 public class GetKeys extends AbstractMultiGetTransaction<String[]> {
-    public GetKeys(IDatabaseTools databaseTools, String prefix) {
+    public GetKeys(INoSQLDatabaseTools databaseTools, String prefix) {
         super(databaseTools, prefix);
     }
 

@@ -6,7 +6,7 @@ package org.ribak.nosql.utils.exceptions;
 
 public class InitializationException extends KryoDBException {
 
-    public InitializationException(String message) {
-        super(message);
+    public InitializationException() {
+        super("init was never called!!");
     }
 }

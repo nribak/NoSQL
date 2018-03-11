@@ -1,6 +1,6 @@
 package org.ribak.nosql.transactions;
 
-import org.ribak.nosql.db.IDatabaseTools;
+import org.ribak.nosql.db.INoSQLDatabaseTools;
 
 /**
  * Created by nribak on 22/02/2017.
@@ -8,7 +8,7 @@ import org.ribak.nosql.db.IDatabaseTools;
 
 abstract class AbstractMultiGetTransaction<RESULT> extends AbstractTransaction<Void, RESULT> {
     private String prefix;
-    AbstractMultiGetTransaction(IDatabaseTools databaseTools, String prefix) {
+    AbstractMultiGetTransaction(INoSQLDatabaseTools databaseTools, String prefix) {
         super(databaseTools, null, null);
         this.prefix = prefix;
     }

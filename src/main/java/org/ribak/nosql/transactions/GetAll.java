@@ -1,6 +1,6 @@
 package org.ribak.nosql.transactions;
 
-import org.ribak.nosql.db.IDatabaseTools;
+import org.ribak.nosql.db.INoSQLDatabaseTools;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,7 +12,7 @@ import java.util.Set;
  */
 
 public class GetAll extends AbstractMultiGetTransaction<Map<String, ?>> {
-    public GetAll(IDatabaseTools databaseTools, String prefix) {
+    public GetAll(INoSQLDatabaseTools databaseTools, String prefix) {
         super(databaseTools, prefix);
     }
 

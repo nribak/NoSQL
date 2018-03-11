@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutorService;
  * Created by nribak on 21/02/2017.
  */
 
-public class KryoDatabase implements IDatabaseTools {
+public class NoSQLDatabase implements INoSQLDatabaseTools{
     private static ExecutorService executorService;
     private DatabaseAPI api;
     private String moduleName;
@@ -27,7 +27,7 @@ public class KryoDatabase implements IDatabaseTools {
         executorService = new PriorityPoolExecutor();
     }
 
-    public KryoDatabase(String moduleName) {
+    public NoSQLDatabase(String moduleName) {
         this.moduleName = moduleName;
         this.api = new KryoDatabaseAPI(moduleName);
     }
@@ -43,7 +43,7 @@ public class KryoDatabase implements IDatabaseTools {
     }
 
     @Override
-    public DatabaseAPI getDirectDb() {
+    public DatabaseAPI getApi() {
         return api;
     }
 

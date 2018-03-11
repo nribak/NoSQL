@@ -18,7 +18,7 @@ public class PriorityPoolExecutor extends ThreadPoolExecutor
 {
     public PriorityPoolExecutor()
     {
-        super(1, 1, 0, TimeUnit.SECONDS, new PriorityBlockingQueue<Runnable>());
+        super(1, 1, 0, TimeUnit.SECONDS, new PriorityBlockingQueue<>());
     }
 
     @Override
@@ -28,7 +28,7 @@ public class PriorityPoolExecutor extends ThreadPoolExecutor
         return new PriorityFutureTask<>(priorityCallable, priorityCallable.getModule(), priorityCallable.getQueuePriority());
     }
 
-    private class PriorityFutureTask <V> extends FutureTask <V> implements Comparable<PriorityFutureTask<V>>
+    private static class PriorityFutureTask <V> extends FutureTask <V> implements Comparable<PriorityFutureTask<V>>
     {
         private QueuePriority queuePriority;
         private String module;
@@ -41,13 +41,8 @@ public class PriorityPoolExecutor extends ThreadPoolExecutor
 
         @Override
         public int compareTo(@NonNull PriorityFutureTask<V> another) {
-            Integer lPriority = this.queuePriority.getPriority();
-            Integer rPriority = another.queuePriority.getPriority();
-
-            int priorityCompare = lPriority.compareTo(rPriority);
-            if(priorityCompare != 0)
-                return priorityCompare;
-            return this.module.compareTo(another.module);
+            int c = Integer.compare(this.queuePriority.getPriority(), another.queuePriority.getPriority());
+            return c == 0 ? this.module.compareTo(another.module) : c;
         }
     }
 }

@@ -5,14 +5,15 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ribak.nosql.db.KryoDatabase;
-import org.ribak.nosql.db.KryoDatabaseAPI;
+import org.ribak.nosql.db.DBFileStreamApi;
+import org.ribak.nosql.db.NoSQLDatabase;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -28,11 +29,11 @@ import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
 public class NoSQLTest {
-    private KryoDatabase database;
+    private NoSQLDatabase database;
     @Before
     public void setUp() throws Exception {
-        KryoDatabaseAPI.init(InstrumentationRegistry.getTargetContext());
-        database = new KryoDatabase("test-module-3");
+        DBFileStreamApi.init(InstrumentationRegistry.getTargetContext());
+        database = new NoSQLDatabase("test-module-3");
     }
 
     @After
@@ -86,10 +87,12 @@ public class NoSQLTest {
         bundle.putParcelableArrayList("key4", list);
         bundle.putIntArray("key5", new int[] {10, 20, 30});
         String key = "bundle_key";
+        long time = System.currentTimeMillis();
         database.insert(key, bundle).sync();
-
+        Log.d("TIME1", String.valueOf(System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
         Bundle bundle2 = database.<Bundle> get(key).sync();
-
+        Log.d("TIME2", String.valueOf(System.currentTimeMillis() - time));
         Assert.assertNotNull(bundle2);
         boolean eq = checkBundles(bundle, bundle2);
         Assert.assertTrue(eq);
@@ -116,6 +119,13 @@ public class NoSQLTest {
        if(o1.getClass().isArray() && o2.getClass().isArray())
            return Array.getLength(o1) == Array.getLength(o2);
        return Objects.equals(o1, o2);
+    }
+
+    @Test
+    public void db4() throws Exception {
+//        for (int i = 0; i < 100; i++)
+//            database.insert("key" + i, "string" + i).async();
+        database.insert("key-sync", "string-sync").sync();
     }
 
     private static class TestClass implements Parcelable {

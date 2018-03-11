@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
  * Created by nribak on 16/11/2016.
  */
 
-public interface SnappyCallback <T>
+public interface DBCallback<T>
 {
     void onDbCallback(@Nullable String key, T response);
 }

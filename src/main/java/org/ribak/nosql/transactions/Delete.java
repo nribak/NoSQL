@@ -1,6 +1,6 @@
 package org.ribak.nosql.transactions;
 
-import org.ribak.nosql.db.IDatabaseTools;
+import org.ribak.nosql.db.INoSQLDatabaseTools;
 
 /**
  * Created by nribak on 16/11/2016.
@@ -8,7 +8,7 @@ import org.ribak.nosql.db.IDatabaseTools;
 
 public class Delete extends AbstractTransaction<Void, Boolean>
 {
-    public Delete(IDatabaseTools tools, String key)
+    public Delete(INoSQLDatabaseTools tools, String key)
     {
         super(tools, key, null);
     }

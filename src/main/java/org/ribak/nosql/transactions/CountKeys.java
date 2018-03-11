@@ -1,6 +1,6 @@
 package org.ribak.nosql.transactions;
 
-import org.ribak.nosql.db.IDatabaseTools;
+import org.ribak.nosql.db.INoSQLDatabaseTools;
 
 import java.util.Set;
 
@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class CountKeys extends AbstractMultiGetTransaction<Integer>
 {
-    public CountKeys(IDatabaseTools databaseTools, String prefix) {
+    public CountKeys(INoSQLDatabaseTools databaseTools, String prefix) {
         super(databaseTools, prefix);
     }
 
