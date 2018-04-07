@@ -40,6 +40,7 @@ public class KryoDatabaseAPI extends DatabaseAPI {
         else
             output.setOutputStream(outputStream);
         kryo.writeClassAndObject(output, value);
+        output.flush();
     }
 
     @Nullable
